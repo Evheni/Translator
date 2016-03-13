@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Lexemes;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -7,11 +7,11 @@ namespace Analysis
     class AnalysisController
     {
         //public string Errors { get; private set; } = "";
-        List<string[]> outLex;
+        LexemeTable<OutputLexeme> outLex;
         List<object[]> resultTable;
         Dictionary<string, double> variables;
 
-        public AnalysisController(List<string[]> lexemesTable)
+        public AnalysisController(LexemeTable<OutputLexeme> lexemesTable)
         {
             this.outLex = lexemesTable;
             //Task.Run(Parse);
@@ -19,11 +19,9 @@ namespace Analysis
         }
         public List<object[]> ResultTable
         {
-            get
-            {
-                return resultTable;
-            }
+            get { return resultTable; }
         }
+
         public Dictionary<string, double> Variables
         {
             get { return variables; }
@@ -43,7 +41,10 @@ namespace Analysis
         {
             var parser = new AscendingParser();
             if (names != null)
+            {
                 parser.AddVariables(names);
+            }
+
             try
             {                
                 parser.AscendingAnalysis(outLex);

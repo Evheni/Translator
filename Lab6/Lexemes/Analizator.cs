@@ -56,9 +56,9 @@ namespace Translator
             inputLexemeList = lexemeList;
             this.lexemesClass = lexemesClass;
             outputLexemeList = new LexemeTable<OutputLexeme>(new List<OutputLexeme>(),
-                      lexemeList.FindByName("id").ID,
-                      lexemeList.FindByName("con").ID,
-                      lexemeList.FindByName("label").ID);            
+                      lexemeList.IdKey,
+                      lexemeList.ConstKey,
+                      lexemeList.LabelKey);            
             idsTable = new HashSet<Identifier>();
             consts = new HashSet<Tuple<int, string>>();
             labels = new HashSet<Tuple<int, string>>();

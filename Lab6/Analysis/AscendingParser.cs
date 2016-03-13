@@ -62,6 +62,8 @@ namespace Analysis
             sv = "";
             isRule = false;
 
+            var polizBuilder = new Lab6.Poliz();
+
             for (var i = 0; i < stack.Count(); i++)
                 ss = ss + stack[i].ToString() + " ";
 
@@ -77,7 +79,7 @@ namespace Analysis
 
             while (input.Count() != 0) // предел редукции
             {
-
+                
                 if (lastVar == null && input.Count > 1 && input[1] == "=")
                 {
                     lastVar = outLex[outLex.Count - input.Count].Name;
@@ -97,7 +99,21 @@ namespace Analysis
                 if (AscAn[step - 1][2].ToString() == "<" 
                     || AscAn[step - 1][2].ToString() == "=")
                 {
-                    stack.Add(input.First());
+                    var first = input.First();
+                    stack.Add(first);
+                    if (first == "id" || first == "con")
+                    {
+                        poliz.Add(polizBuilder.AddElement(
+                            outLex[outLex.Count - input.Count].Name, true));
+                    }
+                    else if (polizBuilder.IsOperation(first))
+                    {
+                        sp = polizBuilder.AddElement(first);
+                    } else
+                    {
+                        poliz = polizBuilder.Build();
+                        polizBuilder = new Lab6.Poliz();
+                    }
                     input.RemoveAt(0);
                     lineNumber.RemoveAt(0);
                     step++;
