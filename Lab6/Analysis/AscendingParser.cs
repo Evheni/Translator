@@ -24,40 +24,78 @@ namespace Analysis
 
         public bool AscendingAnalysis(LexemeTable<OutputLexeme> outLex)
         {
-            List<string> input = new List<string>(); //входная цепочка
-            List<string> stack = new List<string>(); //стек-результат
-            List<string> temp = new List<string>(); //цепочка для редукции
-            List<string> lineNumber = new List<string>(); //номера строк элементов входа
-            int i, j, step;
-            string ss, si, st;
+            int step;
+            string ss, si, st, sp, sv;
             bool isRule = false;
-            lineNumber.Add("#");
-            for (i = 0; i < outLex.Length - 1; i++)
+            bool needClear = false;
+
+            //lineNumber.Add("#");
+            for (var i = 0; i < outLex.Count - 1; i++)
             {
-                if (outLex[3, i].Value.ToString() == "35") { input.Add("id"); lineNumber.Add(outLex[1, i].Value.ToString()); }
-                else if (outLex[3, i].Value.ToString() == "36") { input.Add("con"); lineNumber.Add(outLex[1, i].Value.ToString()); }
-                else if (outLex[3, i].Value.ToString() == "37") { input.Add("label"); lineNumber.Add(outLex[1, i].Value.ToString()); }
-                else { input.Add(outLex[2, i].Value.ToString()); lineNumber.Add(outLex[1, i].Value.ToString()); }
-            }
-            input.Add("#");
-            stack.Add("#");
-            step = 1;
-            ss = ""; si = ""; st = ""; isRule = false;
-            for (i = 0; i < stack.Count(); i++) ss = ss + stack[i].ToString() + " ";
-            for (j = 0; j < input.Count(); j++) si = si + input[j].ToString() + " ";
-            AscAn.Rows.Add(step, ss, "", si);
-            while (input.Count() != 0)//предел редукции
-            {
-                if (relationController.FindRelation(input.First(), stack.Last()) != "")
+                if (outLex[i].ID == outLex.IdKey)
                 {
-                    AscAn[2, step - 1].Value = relationController.FindRelation(input.First(), stack.Last());
+                    input.Add("id");
+                }
+                else if (outLex[i].ID == outLex.ConstKey)
+                {
+                    input.Add("con");
+                }
+                else if (outLex[i].ID == outLex.LabelKey)
+                {
+                    input.Add("label");
                 }
                 else
                 {
-                    txtErrorList.Text = txtErrorList.Text + "(" + lineNumber.First() + ") - " + "'" + stack.Last() + "' can't stand next to '" + input.First() + "'" + "\r\n";
-                    return false;
+                    input.Add(outLex[i].Name);
                 }
-                if (AscAn[2, step - 1].Value.ToString() == "<" || AscAn[2, step - 1].Value.ToString() == "=")
+                lineNumber.Add(outLex[i].StringNumber.ToString());
+            }
+
+            input.Add("#");
+            stack.Add("#");
+
+            step = 1;
+            ss = ""; // stack string
+            si = ""; // input string
+            st = ""; 
+            sp = ""; // poliz string
+            sv = "";
+            isRule = false;
+
+            for (var i = 0; i < stack.Count(); i++)
+                ss = ss + stack[i].ToString() + " ";
+
+            for (var j = 0; j < input.Count(); j++)
+                si = si + input[j].ToString() + " ";
+
+            for (var j = 0; j < poliz.Count(); j++)
+                sp = sp + poliz[j].ToString() + " ";
+
+            AscAn.Add(new object[] { step, ss, "", si, sp, sv });
+
+            string lastVar = null;
+
+            while (input.Count() != 0) // предел редукции
+            {
+
+                if (lastVar == null && input.Count > 1 && input[1] == "=")
+                {
+                    lastVar = outLex[outLex.Count - input.Count].Name;
+                }
+
+                AscAn[step - 1][2] = FindRelation(input.First(), stack.Last());
+
+                if (AscAn[step - 1][2].ToString() == "")
+                {
+                    throw new Exception(
+                        "(" + lineNumber.First() + ") - "
+                        + "'" + stack.Last() + "' can't stand next to '"
+                        + input.First() + "'");
+                    // return false;
+                }
+
+                if (AscAn[step - 1][2].ToString() == "<" 
+                    || AscAn[step - 1][2].ToString() == "=")
                 {
                     stack.Add(input.First());
                     input.RemoveAt(0);
@@ -68,18 +106,20 @@ namespace Analysis
                 {
                     temp.Add(stack.Last());
                     stack.RemoveAt(stack.Count - 1);
-                    while (relationController.FindRelation(temp.Last(), stack.Last()) != "<")
+                    while (FindRelation(temp.Last(), stack.Last()) != "<")
                     {
                         temp.Add(stack.Last());
                         stack.RemoveAt(stack.Count - 1);
                     }
                     temp.Reverse();
-                    if (temp.First() == "<прогр>") return true;
+
+                    if (temp.First() == "<прогр>")
+                        return true;
                     else
                     {
                         foreach (var line in Grammar.Lines)
                         {
-                            for (i = 0; i < line.Right.Count(); i++)
+                            for (var i = 0; i < line.Right.Count(); i++)
                             {
                                 if (temp.SequenceEqual(line.Right[i]))
                                 {
@@ -91,19 +131,48 @@ namespace Analysis
                             }
                             if (isRule) break;
                         }
+
                         st = "";
                         if (!isRule)
                         {
-                            for (i = 0; i < temp.Count(); i++) st = st + temp[i].ToString() + " ";
-                            txtErrorList.Text = txtErrorList.Text + "(" + lineNumber.First() + ") - " + "Can't reduce '" + st + "'\r\n";
-                            return false;
+                            for (var i = 0; i < temp.Count(); i++)
+                                st = st + temp[i].ToString() + " ";
+                            throw new Exception("(" + lineNumber.First() + ") - " + "Can't reduce '" + st);
+                            // return false;
                         }
                     }
                 }
-                ss = ""; si = ""; st = ""; isRule = false;
-                for (i = 0; i < stack.Count(); i++) ss = ss + stack[i].ToString() + " ";
-                for (j = 0; j < input.Count(); j++) si = si + input[j].ToString() + " ";
-                AscAn.Rows.Add(step, ss, "", si);
+                ss = "";
+                si = "";
+                st = "";
+                sp = "";
+                isRule = false;
+
+                for (var i = 0; i < stack.Count(); i++)
+                    ss += stack[i].ToString() + " ";
+
+                for (var j = 0; j < input.Count(); j++)
+                    si += input[j].ToString() + " ";
+
+                for (var j = 0; j < poliz.Count(); j++)
+                    sp += poliz[j].ToString() + " ";
+
+                if (lastVar != null && sv != "")
+                {
+                    SetVariable(lastVar, double.Parse(sv));
+                    lastVar = null;
+                }
+
+                if (Values.ContainsKey(sv))
+                    sv = Values[sv].ToString();
+                AscAn.Add(new object[] { step, ss, "", si, sp, sv });
+                sv = "";
+                if (needClear)
+                {
+                    poliz.Clear();
+                    needClear = false;
+                }
+                cpol.Clear();
             }
             return true;
         }
