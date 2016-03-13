@@ -1,9 +1,8 @@
-﻿using Lexemes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Translator;
 
-namespace Lexems
+namespace Lexemes
 {
     class LexemeController
     {
@@ -76,7 +75,7 @@ namespace Lexems
             {
                 lexemes[i] = lexemesList[i].Name;
             }
-            Lexemes.Lexemes.SetDictionary(lexemes);
+            Lexemes.SetDictionary(lexemes);
         }
 
         public LexemeTable<OutputLexeme> LexicalAnalysis(Action<string> Writer)
