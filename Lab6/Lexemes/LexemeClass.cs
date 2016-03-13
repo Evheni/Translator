@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Translator.Lexemes
+namespace Lexemes
 {
     class LexemeClass
     {

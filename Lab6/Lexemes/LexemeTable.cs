@@ -1,9 +1,8 @@
-﻿using Lexemes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections;
 
-namespace Translator.Lexemes
+namespace Lexemes
 {
     public class LexemeTable<T> : IEnumerable<T>, IDisposable
         where T : ILexeme

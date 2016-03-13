@@ -1,4 +1,4 @@
-﻿namespace Translator
+﻿namespace Lexemes
 {
     internal class Identifier
     {

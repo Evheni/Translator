@@ -1,5 +1,5 @@
 ﻿
-namespace Translator.Lexemes
+namespace Lexemes
 {
     class Lexeme : AbstractLexeme
     {

@@ -1,12 +1,9 @@
-﻿using System;
+﻿using Lexemes;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Translator;
-using Translator.Lexemes;
 
-namespace GrammarRelations.Lexems
+namespace Lexems
 {
     class LexemeController
     {

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Lexemes;
 
 namespace Analysis
 {
@@ -20,6 +21,93 @@ namespace Analysis
         //private Dictionary<int, string> lines = new Dictionary<int, string>();
 
         public List<object[]> AscAn { get; private set; } = new List<object[]>();
+
+        public bool AscendingAnalysis(LexemeTable<OutputLexeme> outLex)
+        {
+            List<string> input = new List<string>(); //входная цепочка
+            List<string> stack = new List<string>(); //стек-результат
+            List<string> temp = new List<string>(); //цепочка для редукции
+            List<string> lineNumber = new List<string>(); //номера строк элементов входа
+            int i, j, step;
+            string ss, si, st;
+            bool isRule = false;
+            lineNumber.Add("#");
+            for (i = 0; i < outLex.Length - 1; i++)
+            {
+                if (outLex[3, i].Value.ToString() == "35") { input.Add("id"); lineNumber.Add(outLex[1, i].Value.ToString()); }
+                else if (outLex[3, i].Value.ToString() == "36") { input.Add("con"); lineNumber.Add(outLex[1, i].Value.ToString()); }
+                else if (outLex[3, i].Value.ToString() == "37") { input.Add("label"); lineNumber.Add(outLex[1, i].Value.ToString()); }
+                else { input.Add(outLex[2, i].Value.ToString()); lineNumber.Add(outLex[1, i].Value.ToString()); }
+            }
+            input.Add("#");
+            stack.Add("#");
+            step = 1;
+            ss = ""; si = ""; st = ""; isRule = false;
+            for (i = 0; i < stack.Count(); i++) ss = ss + stack[i].ToString() + " ";
+            for (j = 0; j < input.Count(); j++) si = si + input[j].ToString() + " ";
+            AscAn.Rows.Add(step, ss, "", si);
+            while (input.Count() != 0)//предел редукции
+            {
+                if (relationController.FindRelation(input.First(), stack.Last()) != "")
+                {
+                    AscAn[2, step - 1].Value = relationController.FindRelation(input.First(), stack.Last());
+                }
+                else
+                {
+                    txtErrorList.Text = txtErrorList.Text + "(" + lineNumber.First() + ") - " + "'" + stack.Last() + "' can't stand next to '" + input.First() + "'" + "\r\n";
+                    return false;
+                }
+                if (AscAn[2, step - 1].Value.ToString() == "<" || AscAn[2, step - 1].Value.ToString() == "=")
+                {
+                    stack.Add(input.First());
+                    input.RemoveAt(0);
+                    lineNumber.RemoveAt(0);
+                    step++;
+                }
+                else
+                {
+                    temp.Add(stack.Last());
+                    stack.RemoveAt(stack.Count - 1);
+                    while (relationController.FindRelation(temp.Last(), stack.Last()) != "<")
+                    {
+                        temp.Add(stack.Last());
+                        stack.RemoveAt(stack.Count - 1);
+                    }
+                    temp.Reverse();
+                    if (temp.First() == "<прогр>") return true;
+                    else
+                    {
+                        foreach (var line in Grammar.Lines)
+                        {
+                            for (i = 0; i < line.Right.Count(); i++)
+                            {
+                                if (temp.SequenceEqual(line.Right[i]))
+                                {
+                                    stack.Add(line.Left);
+                                    isRule = true;
+                                    temp.Clear();
+                                    step++; break;
+                                }
+                            }
+                            if (isRule) break;
+                        }
+                        st = "";
+                        if (!isRule)
+                        {
+                            for (i = 0; i < temp.Count(); i++) st = st + temp[i].ToString() + " ";
+                            txtErrorList.Text = txtErrorList.Text + "(" + lineNumber.First() + ") - " + "Can't reduce '" + st + "'\r\n";
+                            return false;
+                        }
+                    }
+                }
+                ss = ""; si = ""; st = ""; isRule = false;
+                for (i = 0; i < stack.Count(); i++) ss = ss + stack[i].ToString() + " ";
+                for (j = 0; j < input.Count(); j++) si = si + input[j].ToString() + " ";
+                AscAn.Rows.Add(step, ss, "", si);
+            }
+            return true;
+        }
+
 
         public bool AscendingAnalysis(List<string[]> outLex)
         {

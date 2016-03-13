@@ -1,8 +1,6 @@
-﻿using Lexemes;
-using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
-namespace Translator
+namespace Lexemes
 {
     abstract class AbstractLexeme : ILexeme
     {
