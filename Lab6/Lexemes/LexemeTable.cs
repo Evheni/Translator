@@ -60,11 +60,11 @@ namespace Lexemes
             int idKey = -1, int constKey = -1, int labelKey = -1)
         {
             lexemeList = new List<T>(list);
-            if(constKey > -1 && constKey < lexemeList.Count)
+            if(constKey > -1)
                 this.constKey = constKey;
-            if (idKey > -1 && idKey < lexemeList.Count)
+            if (idKey > -1)
                 this.idKey = idKey;
-            if (labelKey > -1 && labelKey < lexemeList.Count)
+            if (labelKey > -1)
                 this.labelKey = labelKey;
         }
         #endregion
